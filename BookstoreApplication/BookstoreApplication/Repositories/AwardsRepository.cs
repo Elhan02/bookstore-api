@@ -12,31 +12,31 @@ namespace BookstoreApplication.Repositories
             _context = context;
         }
 
-        public async Task<List<Award>> GetAll()
+        public async Task<List<Award>> GetAllAsync()
         {
             return await _context.Awards.ToListAsync();
         }
 
-        public async Task<Award?> GetById(int id)
+        public async Task<Award?> GetByIdAsync(int id)
         {
             return await _context.Awards.FindAsync(id);
         }
 
-        public async Task<Award> Create(Award award)
+        public async Task<Award> CreateAsync(Award award)
         {
             _context.Awards.Add(award);
             await _context.SaveChangesAsync();
             return award;
         }
 
-        public async Task<Award> Update(Award award)
+        public async Task<Award> UpdateAsync(Award award)
         {
             _context.Awards.Update(award);
             await _context.SaveChangesAsync();
             return award;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             Award award = await _context.Awards.FindAsync(id);
 

@@ -12,7 +12,7 @@ namespace BookstoreApplication.Repositories
             _context = context;
         }
 
-        public async Task<List<Book>> GetAll()
+        public async Task<List<Book>> GetAllAsync()
         {
             return await _context.Books
                 .Include(b => b.Author)
@@ -20,7 +20,7 @@ namespace BookstoreApplication.Repositories
                 .ToListAsync();
         }
 
-        public async Task<Book?> GetById(int id)
+        public async Task<Book?> GetByIdAsync(int id)
         {
 
             return await _context.Books
@@ -29,21 +29,21 @@ namespace BookstoreApplication.Repositories
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
-        public async Task<Book> Create(Book book)
+        public async Task<Book> CreateAsync(Book book)
         {
             _context.Books.Add(book);
             await _context.SaveChangesAsync();
             return book;
         }
 
-        public async Task<Book> Update(Book book)
+        public async Task<Book> UpdateAsync(Book book)
         {
             _context.Books.Update(book);
             await _context.SaveChangesAsync();
             return book;
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             Book book = await _context.Books.FindAsync(id);
 

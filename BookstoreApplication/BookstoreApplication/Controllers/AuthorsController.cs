@@ -1,5 +1,4 @@
-﻿using BookstoreApplication.Data;
-using BookstoreApplication.Models;
+﻿using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,11 +19,11 @@ namespace BookstoreApplication.Controllers
 
         // GET: api/authors
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             try
             {
-                return Ok(await _authorsRepository.GetAll());
+                return Ok(await _authorsRepository.GetAllAsync());
             }
             catch (Exception ex)
             {
@@ -34,11 +33,11 @@ namespace BookstoreApplication.Controllers
 
         // GET api/authors/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetOne(int id)
+        public async Task<IActionResult> GetOneAsync(int id)
         {
             try
             {
-                Author author = await _authorsRepository.GetById(id);
+                Author author = await _authorsRepository.GetByIdAsync(id);
                 if (author == null)
                 {
                     return NotFound($"Author with ID: ${id} not found.");
@@ -53,11 +52,11 @@ namespace BookstoreApplication.Controllers
 
         // POST api/authors
         [HttpPost]
-        public async Task<IActionResult> Post(Author author)
+        public async Task<IActionResult> PostAsync(Author author)
         {
             try
             {
-                Author createdAuthor = await _authorsRepository.Create(author);
+                Author createdAuthor = await _authorsRepository.CreateAsync(author);
                 return Ok(createdAuthor);
             }
             catch (Exception ex)
@@ -68,11 +67,11 @@ namespace BookstoreApplication.Controllers
 
         // PUT api/authors/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Author author)
+        public async Task<IActionResult> PutAsync(int id, Author author)
         {
             try
             {
-                Author existingAuthor = await _authorsRepository.GetById(id);
+                Author existingAuthor = await _authorsRepository.GetByIdAsync(id);
                 if (existingAuthor == null)
                 {
                     return NotFound($"Author with ID: {id} not found.");
@@ -83,7 +82,7 @@ namespace BookstoreApplication.Controllers
                 existingAuthor.DateOfBirth = author.DateOfBirth;
                 existingAuthor.Id = id;
 
-                Author updatedAuthor = await _authorsRepository.Update(existingAuthor);
+                Author updatedAuthor = await _authorsRepository.UpdateAsync(existingAuthor);
                 return Ok(updatedAuthor);
             }
             catch (Exception ex)
@@ -94,11 +93,11 @@ namespace BookstoreApplication.Controllers
 
         // DELETE api/authors/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeletAsynce(int id)
         {
             try
             {
-                bool result = await _authorsRepository.Delete(id);
+                bool result = await _authorsRepository.DeleteAsync(id);
 
                 if (!result)
                 {

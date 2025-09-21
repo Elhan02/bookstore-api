@@ -1,5 +1,4 @@
-﻿using BookstoreApplication.Data;
-using BookstoreApplication.Models;
+﻿using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -25,11 +24,11 @@ namespace BookstoreApplication.Controllers
 
         // GET: api/books
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAllAsync()
         {
             try
             {
-                return Ok(await _booksRepository.GetAll());
+                return Ok(await _booksRepository.GetAllAsync());
             }
             catch (Exception ex)
             {
@@ -39,11 +38,11 @@ namespace BookstoreApplication.Controllers
 
         // GET api/books/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetOne(int id)
+        public async Task<IActionResult> GetOneAsync(int id)
         {
             try
             {
-                Book book = await _booksRepository.GetById(id);
+                Book book = await _booksRepository.GetByIdAsync(id);
                 if (book == null)
                 {
                     return NotFound($"Book with ID: ${id} not found.");
@@ -58,18 +57,18 @@ namespace BookstoreApplication.Controllers
 
         // POST api/books
         [HttpPost]
-        public async Task<IActionResult> Post(Book book)
+        public async Task<IActionResult> PostAsync(Book book)
         {
             try
             {
                 // kreiranje knjige je moguće ako je izabran postojeći autor
-                Author author = await _authorsRepository.GetById(book.AuthorId);
+                Author author = await _authorsRepository.GetByIdAsync(book.AuthorId);
                 if (author == null)
                 {
                     return BadRequest($"Author with ID: ${book.AuthorId} not found.");
                 }
 
-                Publisher publisher = await _publishersRepository.GetById(book.PublisherId);
+                Publisher publisher = await _publishersRepository.GetByIdAsync(book.PublisherId);
                 if (publisher == null)
                 {
                     return BadRequest($"Publisher with ID: ${book.PublisherId} not found.");
@@ -77,7 +76,7 @@ namespace BookstoreApplication.Controllers
 
                 book.Author = author;
                 book.Publisher = publisher;
-                Book createdBook = await _booksRepository.Create(book);
+                Book createdBook = await _booksRepository.CreateAsync(book);
                 return Ok(createdBook);
             }
             catch (Exception ex)
@@ -88,7 +87,7 @@ namespace BookstoreApplication.Controllers
 
         // PUT api/books/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, Book book)
+        public async Task<IActionResult> PutAsync(int id, Book book)
         {
             try
             {
@@ -97,21 +96,21 @@ namespace BookstoreApplication.Controllers
                     return BadRequest();
                 }
 
-                Book existingBook = await _booksRepository.GetById(id);
+                Book existingBook = await _booksRepository.GetByIdAsync(id);
                 if (existingBook == null)
                 {
                     return NotFound($"Book with ID: {id} not found.");
                 }
 
                 // izmena knjige je moguca ako je izabran postojeći autor
-                Author author = await _authorsRepository.GetById(book.AuthorId);
+                Author author = await _authorsRepository.GetByIdAsync(book.AuthorId);
                 if (author == null)
                 {
                     return BadRequest($"Author with ID: ${book.AuthorId} not found.");
                 }
 
                 // izmena knjige je moguca ako je izabran postojeći izdavač
-                Publisher publisher = await _publishersRepository.GetById(book.PublisherId);
+                Publisher publisher = await _publishersRepository.GetByIdAsync(book.PublisherId);
                 if (publisher == null)
                 {
                     return BadRequest($"Publisher with ID: ${book.PublisherId} not found.");
@@ -127,7 +126,7 @@ namespace BookstoreApplication.Controllers
                 existingBook.Publisher = publisher;
                 existingBook.Id = id;
 
-                Book updatedBook = await _booksRepository.Update(existingBook);
+                Book updatedBook = await _booksRepository.UpdateAsync(existingBook);
                 return Ok(updatedBook);
             }
             catch (Exception ex)
@@ -138,11 +137,11 @@ namespace BookstoreApplication.Controllers
 
         // DELETE api/books/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteAsync(int id)
         {
             try
             {
-                bool result = await _booksRepository.Delete(id);
+                bool result = await _booksRepository.DeleteAsync(id);
 
                 if (!result)
                 {
