@@ -14,18 +14,32 @@ namespace BookstoreApplication.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<AuthorAward>()
-                .HasKey(aa => new { aa.AuthorId, aa.AwardId });
+            modelBuilder.Entity<AuthorAward>(entity =>
+            {
+                entity.ToTable("AuthorAwardBridge");
 
-            modelBuilder.Entity<AuthorAward>()
-                .HasOne(aa => aa.Author)
-                .WithMany(a => a.AuthorAwards)
-                .HasForeignKey(aa => aa.AuthorId);
+                entity.HasKey(aa => new { aa.AuthorId, aa.AwardId });
 
-            modelBuilder.Entity<AuthorAward>()
-                .HasOne(aa => aa.Award)
+                entity.HasOne(aa => aa.Author)
                 .WithMany(a => a.AuthorAwards)
-                .HasForeignKey(aa => aa.AwardId);
+                .HasForeignKey(aa => aa.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(aa => aa.Award)
+                .WithMany(a => a.AuthorAwards)
+                .HasForeignKey(aa => aa.AwardId)
+                .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Author>()
+                .Property(a => a.DateOfBirth)
+                .HasColumnName("Birthday");
+
+            modelBuilder.Entity<Book>()
+                .HasOne(b => b.Publisher)
+                .WithMany()
+                .HasForeignKey(b => b.PublisherId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
