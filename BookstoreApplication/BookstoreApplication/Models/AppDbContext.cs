@@ -9,6 +9,21 @@ namespace BookstoreApplication.Models
         public DbSet<Book> Books { get; set; }
         public DbSet<Author> Authors { get; set; }
         public DbSet<Publisher> Publishers { get; set; }
-        
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<AuthorAward>()
+                .HasKey(aa => new { aa.AuthorId, aa.AwardId });
+
+            modelBuilder.Entity<AuthorAward>()
+                .HasOne(aa => aa.Author)
+                .WithMany(a => a.AuthorAwards)
+                .HasForeignKey(aa => aa.AuthorId);
+
+            modelBuilder.Entity<AuthorAward>()
+                .HasOne(aa => aa.Award)
+                .WithMany(a => a.AuthorAwards)
+                .HasForeignKey(aa => aa.AwardId);
+        }
     }
 }
