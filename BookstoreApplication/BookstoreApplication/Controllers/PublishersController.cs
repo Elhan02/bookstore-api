@@ -1,5 +1,6 @@
 ﻿using BookstoreApplication.Data;
 using BookstoreApplication.Models;
+using BookstoreApplication.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,75 +11,105 @@ namespace BookstoreApplication.Controllers
     [ApiController]
     public class PublishersController : ControllerBase
     {
+        private PublishersRepository _publishersRepository;
+
+        public PublishersController(AppDbContext context)
+        {
+            _publishersRepository = new PublishersRepository(context);
+        }
+
         // GET: api/publishers
         [HttpGet]
-        public IActionResult GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            return Ok(DataStore.Publishers);
+            try
+            {
+                return Ok(await _publishersRepository.GetAll());
+            }
+            catch (Exception ex)
+            {
+                return Problem("An error occured while fetching publishers.");
+            }
         }
 
         // GET api/publishers/5
         [HttpGet("{id}")]
-        public IActionResult GetOne(int id)
+        public async Task<IActionResult> GetOne(int id)
         {
-            var publisher = DataStore.Publishers.FirstOrDefault(a => a.Id == id);
-            if (publisher == null)
+            try
             {
-                return NotFound();
+                Publisher publisher = await _publishersRepository.GetById(id);
+                if (publisher == null)
+                {
+                    return NotFound($"Publisher with ID: ${id} not found.");
+                }
+                return Ok(publisher);
             }
-            return Ok(publisher);
+            catch (Exception ex)
+            {
+                return Problem($"An error occured while fetching Publisher with ID: ${id}");
+            }
         }
 
         // POST api/publishers
         [HttpPost]
-        public IActionResult Post(Publisher publisher)
+        public async Task<IActionResult> Post(Publisher publisher)
         {
-            publisher.Id = DataStore.GetNewPublisherId();
-            DataStore.Publishers.Add(publisher);
-            return Ok(publisher);
+            try
+            {
+                Publisher createdPublisher = await _publishersRepository.Create(publisher);
+                return Ok(createdPublisher);
+            }
+            catch (Exception ex)
+            {
+                return Problem("An error occuired while creating Publisher.");
+            }
         }
 
         // PUT api/publishers/5
         [HttpPut("{id}")]
-        public IActionResult Put(int id, Publisher publisher)
+        public async Task<IActionResult> Put(int id, Publisher publisher)
         {
-            if (id != publisher.Id)
+            try
             {
-                return BadRequest();
-            }
+                Publisher existingPublisher = await _publishersRepository.GetById(id);
+                if (existingPublisher == null)
+                {
+                    return NotFound($"Publisher with ID: {id} not found.");
+                }
 
-            var existingPublisher = DataStore.Publishers.FirstOrDefault(a => a.Id == id);
-            if (existingPublisher == null)
+                existingPublisher.Name = publisher.Name;
+                existingPublisher.Address = publisher.Address;
+                existingPublisher.Website = publisher.Website;
+                existingPublisher.Id = id;
+
+                Publisher updatedPublisher = await _publishersRepository.Update(existingPublisher);
+                return Ok(updatedPublisher);
+            }
+            catch (Exception ex)
             {
-                return NotFound();
+                return Problem($"An error occured while updating Publisher with ID: {id}");
             }
-
-            int index = DataStore.Publishers.IndexOf(existingPublisher);
-            if (index == -1)
-            {
-                return NotFound();
-
-            }
-
-            DataStore.Publishers[index] = publisher;
-            return Ok(publisher);
         }
 
         // DELETE api/publishers/5
         [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var publisher = DataStore.Publishers.FirstOrDefault(a => a.Id == id);
-            if (publisher == null)
+            try
             {
-                return NotFound();
+                bool result = await _publishersRepository.Delete(id);
+
+                if (!result)
+                {
+                    return NotFound($"Publisher with ID: {id} not found");
+                }
+                return NoContent();
             }
-            DataStore.Publishers.Remove(publisher);
-
-            // kaskadno brisanje svih knjiga obrisanog izdavača
-            DataStore.Books.RemoveAll(b => b.PublisherId == id);
-
-            return NoContent();
+            catch (Exception ex)
+            {
+                return Problem($"An error occured while deleting Publisher with ID: {id}");
+            }
         }
     }
 }
