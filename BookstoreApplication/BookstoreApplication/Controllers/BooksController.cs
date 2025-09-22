@@ -76,6 +76,7 @@ namespace BookstoreApplication.Controllers
 
                 book.Author = author;
                 book.Publisher = publisher;
+                book.PublishedDate = DateTime.SpecifyKind(book.PublishedDate, DateTimeKind.Utc);
                 Book createdBook = await _booksRepository.CreateAsync(book);
                 return Ok(createdBook);
             }
@@ -118,7 +119,7 @@ namespace BookstoreApplication.Controllers
 
                 existingBook.Title = book.Title;
                 existingBook.PageCount = book.PageCount;
-                existingBook.PublishedDate = book.PublishedDate;
+                existingBook.PublishedDate = DateTime.SpecifyKind(book.PublishedDate, DateTimeKind.Utc);
                 existingBook.AuthorId = book.AuthorId;
                 existingBook.PublisherId = book.PublisherId;
                 existingBook.ISBN = book.ISBN;
