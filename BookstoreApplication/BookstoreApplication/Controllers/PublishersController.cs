@@ -11,9 +11,9 @@ namespace BookstoreApplication.Controllers
     [ApiController]
     public class PublishersController : ControllerBase
     {
-        private PublisherService _publisherService;
+        private readonly IPublisherService _publisherService;
 
-        public PublishersController(PublisherService publisherService)
+        public PublishersController(IPublisherService publisherService)
         {
             _publisherService = publisherService;
         }

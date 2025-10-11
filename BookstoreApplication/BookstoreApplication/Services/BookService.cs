@@ -3,17 +3,17 @@ using BookstoreApplication.Repositories;
 
 namespace BookstoreApplication.Services
 {
-    public class BookService
+    public class BookService : IBookService
     {
-        private BooksRepository _booksRepository;
-        private AuthorsRepository _authorsRepository;
-        private PublishersRepository _publishersRepository;
+        private readonly IBookRepository _booksRepository;
+        private readonly IAuthorRepository _authorsRepository;
+        private readonly IPublisherRepository _publishersRepository;
 
-        public BookService(AppDbContext context)
+        public BookService(IBookRepository bookRepository, IAuthorRepository authorRepository, IPublisherRepository publisherRepository)
         {
-            _booksRepository = new BooksRepository(context);
-            _authorsRepository = new AuthorsRepository(context);
-            _publishersRepository = new PublishersRepository(context);
+            _booksRepository = bookRepository;
+            _authorsRepository = authorRepository;
+            _publishersRepository = publisherRepository;
         }
 
         public async Task<List<Book>> GetAllAsync()

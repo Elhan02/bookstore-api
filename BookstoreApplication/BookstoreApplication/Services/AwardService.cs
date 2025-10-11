@@ -3,13 +3,13 @@ using BookstoreApplication.Repositories;
 
 namespace BookstoreApplication.Services
 {
-    public class AwardService
+    public class AwardService : IAwardService
     {
-        private AwardsRepository _awardsRepository;
+        private readonly IAwardRepository _awardsRepository;
 
-        public AwardService(AppDbContext context)
+        public AwardService(IAwardRepository awardRepository)
         {
-            _awardsRepository = new AwardsRepository(context);
+            _awardsRepository = awardRepository;
         }
 
         public async Task<List<Award>> GetAllAsync()

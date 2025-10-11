@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BookstoreApplication.Services
 {
-    public class AuthorService
+    public class AuthorService : IAuthorService
     {
-        private AuthorsRepository _authorsRepository;
+        private readonly IAuthorRepository _authorsRepository;
 
-        public AuthorService(AppDbContext context)
+        public AuthorService(IAuthorRepository authorRepository)
         {
-            _authorsRepository = new AuthorsRepository(context);
+            _authorsRepository = authorRepository;
         }
 
         public async Task<List<Author>> GetAllAsync()

@@ -12,15 +12,11 @@ namespace BookstoreApplication.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private BookService _bookService;
-        private AuthorService _authorService;
-        private PublisherService _publisherService;
+        private readonly IBookService _bookService;
 
-        public BooksController(BookService bookService, AuthorService authorService, PublisherService publisherService)
+        public BooksController(IBookService bookService)
         {
             _bookService = bookService;
-            _authorService = authorService;
-            _publisherService = publisherService;
         }
 
         // GET: api/books

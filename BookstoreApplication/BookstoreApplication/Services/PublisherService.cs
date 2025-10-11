@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookstoreApplication.Services
 {
-    public class PublisherService
+    public class PublisherService : IPublisherService
     {
-        private PublishersRepository _publisherRepository;
+        private readonly IPublisherRepository _publisherRepository;
 
-        public PublisherService(AppDbContext context)
+        public PublisherService(IPublisherRepository publisherRepository)
         {
-            _publisherRepository = new PublishersRepository(context);
+            _publisherRepository = publisherRepository;
         }
 
         public async Task<List<Publisher>> GetAllAsync()
