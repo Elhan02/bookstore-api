@@ -36,15 +36,8 @@ namespace BookstoreApplication.Repositories
             return publisher;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(Publisher publisher)
         {
-            Publisher publisher = await _context.Publishers.FindAsync(id);
-
-            if (publisher == null)
-            {
-                return false;
-            }
-
             _context.Publishers.Remove(publisher);
             await _context.SaveChangesAsync();
             return true;

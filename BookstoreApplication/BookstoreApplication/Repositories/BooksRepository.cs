@@ -43,15 +43,8 @@ namespace BookstoreApplication.Repositories
             return book;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(Book book)
         {
-            Book book = await _context.Books.FindAsync(id);
-
-            if (book == null)
-            {
-                return false;
-            }
-
             _context.Books.Remove(book);
             await _context.SaveChangesAsync();
             return true;

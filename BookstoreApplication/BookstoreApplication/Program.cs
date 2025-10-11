@@ -1,9 +1,14 @@
 using BookstoreApplication.Models;
+using BookstoreApplication.Services;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddScoped<AuthorService>();
+builder.Services.AddScoped<PublisherService>();
+builder.Services.AddScoped<BookService>();
+builder.Services.AddScoped<AwardService>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -1,5 +1,6 @@
 ﻿using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
+using BookstoreApplication.Services;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,11 +11,11 @@ namespace BookstoreApplication.Controllers
     [ApiController]
     public class AuthorsController : ControllerBase
     {
-        private AuthorsRepository _authorsRepository;
+        private AuthorService _authorService;
 
-        public AuthorsController(AppDbContext context)
+        public AuthorsController(AuthorService service)
         {
-            _authorsRepository = new AuthorsRepository(context);
+            _authorService = service;
         }
 
         // GET: api/authors
@@ -23,7 +24,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                return Ok(await _authorsRepository.GetAllAsync());
+                return Ok(await _authorService.GetAllAsync());
             }
             catch (Exception ex)
             {
@@ -37,16 +38,16 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                Author author = await _authorsRepository.GetByIdAsync(id);
+                Author author = await _authorService.GetByIdAsync(id);
                 if (author == null)
                 {
-                    return NotFound($"Author with ID: ${id} not found.");
+                    return NotFound($"Author with ID: {id} not found.");
                 }
                 return Ok(author);
             }
             catch (Exception ex)
             {
-                return Problem($"An error occured while fetching Author with ID: ${id}");
+                return Problem($"An error occured while fetching Author with ID: {id}");
             }
         }
 
@@ -56,7 +57,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                Author createdAuthor = await _authorsRepository.CreateAsync(author);
+                Author createdAuthor = await _authorService.CreateAsync(author);
                 return Ok(createdAuthor);
             }
             catch (Exception ex)
@@ -71,18 +72,12 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                Author existingAuthor = await _authorsRepository.GetByIdAsync(id);
-                if (existingAuthor == null)
+                Author updatedAuthor = await _authorService.UpdateAsync(id, author);
+                if (updatedAuthor == null)
                 {
                     return NotFound($"Author with ID: {id} not found.");
                 }
 
-                existingAuthor.FullName = author.FullName;
-                existingAuthor.Biography = author.Biography;
-                existingAuthor.DateOfBirth = author.DateOfBirth;
-                existingAuthor.Id = id;
-
-                Author updatedAuthor = await _authorsRepository.UpdateAsync(existingAuthor);
                 return Ok(updatedAuthor);
             }
             catch (Exception ex)
@@ -97,7 +92,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                bool result = await _authorsRepository.DeleteAsync(id);
+                bool result = await _authorService.DeleteAsync(id);
 
                 if (!result)
                 {

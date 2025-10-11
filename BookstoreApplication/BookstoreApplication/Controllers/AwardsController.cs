@@ -1,5 +1,6 @@
 ﻿using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
+using BookstoreApplication.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,11 +10,11 @@ namespace BookstoreApplication.Controllers
     [ApiController]
     public class AwardsController : ControllerBase
     {
-        private AwardsRepository _awardsRepository;
+        private AwardService _awardService;
 
-        public AwardsController(AppDbContext context)
+        public AwardsController(AwardService awardService)
         {
-            _awardsRepository = new AwardsRepository(context);
+            _awardService = awardService;
         }
 
         // GET: api/awards
@@ -22,7 +23,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                return Ok(await _awardsRepository.GetAllAsync());
+                return Ok(await _awardService.GetAllAsync());
             }
             catch (Exception ex)
             {
@@ -36,7 +37,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                Award award = await _awardsRepository.GetByIdAsync(id);
+                Award award = await _awardService.GetByIdAsync(id);
                 if (award == null)
                 {
                     return NotFound($"Award with ID: ${id} not found.");
@@ -51,23 +52,13 @@ namespace BookstoreApplication.Controllers
 
         // POST api/awards
         [HttpPost]
-        public async Task<IActionResult> PostAsync(int id, Award award)
+        public async Task<IActionResult> PostAsync(Award award)
         {
             try
             {
-                Award existingAward = await _awardsRepository.GetByIdAsync(id);
-                if (existingAward == null)
-                {
-                    return NotFound($"Award with ID: {id} not found.");
-                }
+                Award createdAward = await _awardService.CreateAsync(award);
 
-                existingAward.Name = award.Name;
-                existingAward.Description = award.Description;
-                existingAward.StartedAt = award.StartedAt;
-                existingAward.Id = id;
-
-                Award updatedAward = await _awardsRepository.UpdateAsync(existingAward);
-                return Ok(updatedAward);
+                return Ok(createdAward);
             }
             catch (Exception ex)
             {
@@ -81,18 +72,13 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                Award existingAward = await _awardsRepository.GetByIdAsync(id);
-                if (existingAward == null)
+                Award updatedAward = await _awardService.UpdateAsync(id, award);
+
+                if (updatedAward == null)
                 {
                     return NotFound($"Award with ID: {id} not found.");
                 }
 
-                existingAward.Name = award.Name;
-                existingAward.Description = award.Description;
-                existingAward.StartedAt = award.StartedAt;
-                existingAward.Id = id;
-
-                Award updatedAward = await _awardsRepository.UpdateAsync(existingAward);
                 return Ok(updatedAward);
             }
             catch (Exception ex)
@@ -107,7 +93,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                bool result = await _awardsRepository.DeleteAsync(id);
+                bool result = await _awardService.DeleteAsync(id);
 
                 if (!result)
                 {

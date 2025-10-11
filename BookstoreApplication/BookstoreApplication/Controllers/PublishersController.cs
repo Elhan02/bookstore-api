@@ -1,5 +1,6 @@
 ﻿using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
+using BookstoreApplication.Services;
 using Microsoft.AspNetCore.Mvc;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -10,11 +11,11 @@ namespace BookstoreApplication.Controllers
     [ApiController]
     public class PublishersController : ControllerBase
     {
-        private PublishersRepository _publishersRepository;
+        private PublisherService _publisherService;
 
-        public PublishersController(AppDbContext context)
+        public PublishersController(PublisherService publisherService)
         {
-            _publishersRepository = new PublishersRepository(context);
+            _publisherService = publisherService;
         }
 
         // GET: api/publishers
@@ -23,7 +24,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                return Ok(await _publishersRepository.GetAllAsync());
+                return Ok(await _publisherService.GetAllAsync());
             }
             catch (Exception ex)
             {
@@ -37,7 +38,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                Publisher publisher = await _publishersRepository.GetByIdAsync(id);
+                Publisher publisher = await _publisherService.GetByIdAsync(id);
                 if (publisher == null)
                 {
                     return NotFound($"Publisher with ID: ${id} not found.");
@@ -56,7 +57,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                Publisher createdPublisher = await _publishersRepository.CreateAsync(publisher);
+                Publisher createdPublisher = await _publisherService.CreateAsync(publisher);
                 return Ok(createdPublisher);
             }
             catch (Exception ex)
@@ -71,18 +72,12 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                Publisher existingPublisher = await _publishersRepository.GetByIdAsync(id);
-                if (existingPublisher == null)
+                Publisher updatedPublisher = await _publisherService.UpdateAsync(id, publisher);
+                if (updatedPublisher == null)
                 {
                     return NotFound($"Publisher with ID: {id} not found.");
                 }
 
-                existingPublisher.Name = publisher.Name;
-                existingPublisher.Address = publisher.Address;
-                existingPublisher.Website = publisher.Website;
-                existingPublisher.Id = id;
-
-                Publisher updatedPublisher = await _publishersRepository.UpdateAsync(existingPublisher);
                 return Ok(updatedPublisher);
             }
             catch (Exception ex)
@@ -97,7 +92,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                bool result = await _publishersRepository.DeleteAsync(id);
+                bool result = await _publisherService.DeleteAsync(id);
 
                 if (!result)
                 {

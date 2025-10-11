@@ -1,5 +1,6 @@
 ﻿using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
+using BookstoreApplication.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
@@ -11,15 +12,15 @@ namespace BookstoreApplication.Controllers
     [ApiController]
     public class BooksController : ControllerBase
     {
-        private BooksRepository _booksRepository;
-        private AuthorsRepository _authorsRepository;
-        private PublishersRepository _publishersRepository;
+        private BookService _bookService;
+        private AuthorService _authorService;
+        private PublisherService _publisherService;
 
-        public BooksController(AppDbContext context)
+        public BooksController(BookService bookService, AuthorService authorService, PublisherService publisherService)
         {
-            _booksRepository = new BooksRepository(context);
-            _authorsRepository = new AuthorsRepository(context);
-            _publishersRepository = new PublishersRepository(context);
+            _bookService = bookService;
+            _authorService = authorService;
+            _publisherService = publisherService;
         }
 
         // GET: api/books
@@ -28,7 +29,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                return Ok(await _booksRepository.GetAllAsync());
+                return Ok(await _bookService.GetAllAsync());
             }
             catch (Exception ex)
             {
@@ -42,16 +43,16 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                Book book = await _booksRepository.GetByIdAsync(id);
+                Book book = await _bookService.GetByIdAsync(id);
                 if (book == null)
                 {
-                    return NotFound($"Book with ID: ${id} not found.");
+                    return NotFound($"Book with ID: {id} not found.");
                 }
                 return Ok(book);
             }
             catch (Exception ex)
             {
-                return Problem($"An error occured while fetching Book with ID: ${id}");
+                return Problem($"An error occured while fetching Book with ID: {id}");
             }
         } 
 
@@ -61,23 +62,10 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                // kreiranje knjige je moguće ako je izabran postojeći autor
-                Author author = await _authorsRepository.GetByIdAsync(book.AuthorId);
-                if (author == null)
-                {
-                    return BadRequest($"Author with ID: ${book.AuthorId} not found.");
-                }
+                Book createdBook = await _bookService.CreateAsync(book);
+                
+                if (createdBook == null) return NotFound($"Author or publisher not found.");
 
-                Publisher publisher = await _publishersRepository.GetByIdAsync(book.PublisherId);
-                if (publisher == null)
-                {
-                    return BadRequest($"Publisher with ID: ${book.PublisherId} not found.");
-                }
-
-                book.Author = author;
-                book.Publisher = publisher;
-                book.PublishedDate = DateTime.SpecifyKind(book.PublishedDate, DateTimeKind.Utc);
-                Book createdBook = await _booksRepository.CreateAsync(book);
                 return Ok(createdBook);
             }
             catch (Exception ex)
@@ -92,42 +80,15 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                if (id != book.Id)
-                {
-                    return BadRequest();
-                }
+                if (id != book.Id) return BadRequest();
 
-                Book existingBook = await _booksRepository.GetByIdAsync(id);
-                if (existingBook == null)
+                Book updatedBook = await _bookService.UpdateAsync(id, book);
+
+                if (updatedBook == null)
                 {
                     return NotFound($"Book with ID: {id} not found.");
                 }
 
-                // izmena knjige je moguca ako je izabran postojeći autor
-                Author author = await _authorsRepository.GetByIdAsync(book.AuthorId);
-                if (author == null)
-                {
-                    return BadRequest($"Author with ID: ${book.AuthorId} not found.");
-                }
-
-                // izmena knjige je moguca ako je izabran postojeći izdavač
-                Publisher publisher = await _publishersRepository.GetByIdAsync(book.PublisherId);
-                if (publisher == null)
-                {
-                    return BadRequest($"Publisher with ID: ${book.PublisherId} not found.");
-                }
-
-                existingBook.Title = book.Title;
-                existingBook.PageCount = book.PageCount;
-                existingBook.PublishedDate = DateTime.SpecifyKind(book.PublishedDate, DateTimeKind.Utc);
-                existingBook.AuthorId = book.AuthorId;
-                existingBook.PublisherId = book.PublisherId;
-                existingBook.ISBN = book.ISBN;
-                existingBook.Author = author;
-                existingBook.Publisher = publisher;
-                existingBook.Id = id;
-
-                Book updatedBook = await _booksRepository.UpdateAsync(existingBook);
                 return Ok(updatedBook);
             }
             catch (Exception ex)
@@ -142,12 +103,10 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                bool result = await _booksRepository.DeleteAsync(id);
+                bool result = await _bookService.DeleteAsync(id);
 
-                if (!result)
-                {
-                    return NotFound($"Book with ID: {id} not found");
-                }
+                if (!result) return NotFound($"Book with ID: {id} not found");
+
                 return NoContent();
             }
             catch (Exception ex)
