@@ -3,6 +3,7 @@ using BookstoreApplication.Repositories;
 using BookstoreApplication.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
+using BookstoreApplication.DTOs;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -39,7 +40,7 @@ namespace BookstoreApplication.Controllers
         {
             try
             {
-                Book book = await _bookService.GetByIdAsync(id);
+                BookDetailsDto book = await _bookService.GetByIdAsync(id);
                 if (book == null)
                 {
                     return NotFound($"Book with ID: {id} not found.");
