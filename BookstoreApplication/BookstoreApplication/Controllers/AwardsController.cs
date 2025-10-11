@@ -21,90 +21,46 @@ namespace BookstoreApplication.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            try
-            {
-                return Ok(await _awardService.GetAllAsync());
-            }
-            catch (Exception ex)
-            {
-                return Problem("An error occured while fetching awards.");
-            }
+            return Ok(await _awardService.GetAllAsync());
         }
 
         // GET api/awards/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOneAsync(int id)
         {
-            try
-            {
-                Award award = await _awardService.GetByIdAsync(id);
-                if (award == null)
-                {
-                    return NotFound($"Award with ID: ${id} not found.");
-                }
-                return Ok(award);
-            }
-            catch (Exception ex)
-            {
-                return Problem($"An error occured while fetching Award with ID: ${id}");
-            }
+            return Ok(await _awardService.GetByIdAsync(id));
         }
 
         // POST api/awards
         [HttpPost]
         public async Task<IActionResult> PostAsync(Award award)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                Award createdAward = await _awardService.CreateAsync(award);
+                return BadRequest(ModelState);
+            }
 
-                return Ok(createdAward);
-            }
-            catch (Exception ex)
-            {
-                return Problem("An error occuired while creating Award.");
-            }
+            return Ok(await _awardService.CreateAsync(award));
         }
 
         // PUT api/awards/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAsync(int id, Award award)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                Award updatedAward = await _awardService.UpdateAsync(id, award);
-
-                if (updatedAward == null)
-                {
-                    return NotFound($"Award with ID: {id} not found.");
-                }
-
-                return Ok(updatedAward);
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
-            {
-                return Problem($"An error occured while updating Award with ID: {id}");
-            }
+
+            return Ok(await _awardService.UpdateAsync(id, award));
         }
 
         // DELETE api/awards/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteAsync(int id)
         {
-            try
-            {
-                bool result = await _awardService.DeleteAsync(id);
-
-                if (!result)
-                {
-                    return NotFound($"Award with ID: {id} not found");
-                }
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return Problem($"An error occured while deleting Award with ID: {id}");
-            }
+            await _awardService.DeleteAsync(id);
+            return NoContent();
         }
     }
 }

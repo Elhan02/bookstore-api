@@ -1,6 +1,7 @@
 ﻿using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using BookstoreApplication.Exceptions;
 
 namespace BookstoreApplication.Services
 {
@@ -20,7 +21,12 @@ namespace BookstoreApplication.Services
 
         public async Task<Author> GetByIdAsync(int id)
         {
-            return await _authorsRepository.GetByIdAsync(id);
+            Author author = await _authorsRepository.GetByIdAsync(id);
+            if (author == null)
+            {
+                throw new NotFoundException("Author", id);
+            }
+            return author;
         }
 
         public async Task<Author> CreateAsync(Author author)
@@ -30,8 +36,17 @@ namespace BookstoreApplication.Services
 
         public async Task<Author> UpdateAsync(int id, Author author)
         {
+            if (id != author.Id)
+            {
+                throw new BadRequestException("Identifier value is invalid.");
+            }
+
             Author existingAuthor = await _authorsRepository.GetByIdAsync(id);
-            if (existingAuthor == null) return null;
+
+            if (existingAuthor == null)
+            {
+                throw new NotFoundException("Author", id);
+            }
 
             existingAuthor.FullName = author.FullName;
             existingAuthor.Biography = author.Biography;
@@ -40,17 +55,16 @@ namespace BookstoreApplication.Services
             return await _authorsRepository.UpdateAsync(existingAuthor);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             Author author = await _authorsRepository.GetByIdAsync(id);
 
             if (author == null)
             {
-                return false;
+                throw new NotFoundException("Author", id);
             }
 
             await _authorsRepository.DeleteAsync(author);
-            return true;
         }
     }
 }

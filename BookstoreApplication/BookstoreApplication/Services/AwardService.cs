@@ -1,4 +1,5 @@
-﻿using BookstoreApplication.Models;
+﻿using BookstoreApplication.Exceptions;
+using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
 
 namespace BookstoreApplication.Services
@@ -19,7 +20,14 @@ namespace BookstoreApplication.Services
 
         public async Task<Award> GetByIdAsync(int id)
         {
-            return await _awardsRepository.GetByIdAsync(id);
+            Award award = await _awardsRepository.GetByIdAsync(id);
+
+            if (award == null)
+            {
+                throw new NotFoundException("Award", id);    
+            }
+
+            return award;
         }
 
         public async Task<Award> CreateAsync(Award award)
@@ -29,8 +37,17 @@ namespace BookstoreApplication.Services
 
         public async Task<Award> UpdateAsync(int id, Award award)
         {
+            if (id != award.Id)
+            {
+                throw new BadRequestException("Identifier value is invalid.");
+            }
+
             Award existingAward = await _awardsRepository.GetByIdAsync(id);
-            if (existingAward == null) return null;
+
+            if (existingAward == null)
+            {
+                throw new NotFoundException("Award", id);
+            }
 
             existingAward.Name = award.Name;
             existingAward.Description = award.Description;
@@ -40,17 +57,16 @@ namespace BookstoreApplication.Services
             return await _awardsRepository.UpdateAsync(existingAward);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             Award award = await _awardsRepository.GetByIdAsync(id);
 
             if (award == null)
             {
-                return false;
+                throw new NotFoundException("Award", id);
             }
 
             await _awardsRepository.DeleteAsync(award);
-            return true;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BookstoreApplication.DTOs;
+using BookstoreApplication.Exceptions;
 using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
 
@@ -31,6 +32,12 @@ namespace BookstoreApplication.Services
         public async Task<BookDetailsDto> GetByIdAsync(int id)
         {
             Book book =  await _booksRepository.GetByIdAsync(id);
+
+            if (book == null)
+            {
+                throw new NotFoundException("Book", id);
+            }
+
             return _mapper.Map<BookDetailsDto>(book);
         }
 
@@ -39,7 +46,16 @@ namespace BookstoreApplication.Services
             // kreiranje knjige je moguće ako je izabran postojeći autor i izdavac
             Author author = await _authorsRepository.GetByIdAsync(book.AuthorId);
             Publisher publisher = await _publishersRepository.GetByIdAsync(book.PublisherId);
-            if (author == null || publisher == null) return null;
+
+            if (author == null)
+            {
+                throw new NotFoundException("Author", book.AuthorId);
+            }
+            
+            if (publisher == null)
+            {
+                throw new NotFoundException("Publisher", book.PublisherId);
+            }
 
             book.Author = author;
             book.Publisher = publisher;
@@ -50,13 +66,31 @@ namespace BookstoreApplication.Services
 
         public async Task<Book> UpdateAsync(int id, Book book)
         {
+            if (id != book.Id)
+            {
+                throw new BadRequestException("Identifier value is invalid.");
+            }
+
             Book existingBook = await _booksRepository.GetByIdAsync(id);
-            if (existingBook == null) return null;
+
+            if (existingBook == null)
+            {
+                throw new NotFoundException("Book", id);
+            }
 
             // izmena knjige je moguca ako je izabran postojeći autor ili izdavac
             Author author = await _authorsRepository.GetByIdAsync(book.AuthorId);
             Publisher publisher = await _publishersRepository.GetByIdAsync(book.PublisherId);
-            if (author == null || publisher == null) return null;
+
+            if (author == null)
+            {
+                throw new NotFoundException("Author", book.AuthorId);
+            }
+
+            if (publisher == null)
+            {
+                throw new NotFoundException("Publisher", book.PublisherId);
+            }
 
             existingBook.Title = book.Title;
             existingBook.PageCount = book.PageCount;
@@ -71,17 +105,16 @@ namespace BookstoreApplication.Services
             return await _booksRepository.UpdateAsync(existingBook);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             Book book = await _booksRepository.GetByIdAsync(id);
 
             if (book == null)
             {
-                return false;
+                throw new NotFoundException("Book", id);
             }
 
             await _booksRepository.DeleteAsync(book);
-            return true;
         }
     }
 }

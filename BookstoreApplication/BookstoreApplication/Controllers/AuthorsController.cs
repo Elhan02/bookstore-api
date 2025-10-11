@@ -22,88 +22,46 @@ namespace BookstoreApplication.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            try
-            {
                 return Ok(await _authorService.GetAllAsync());
-            }
-            catch (Exception ex)
-            {
-                return Problem("An error occured while fetching authors.");
-            }
         }
 
         // GET api/authors/5
         [HttpGet("{id}")]
         public async Task<IActionResult> GetOneAsync(int id)
         {
-            try
-            {
-                Author author = await _authorService.GetByIdAsync(id);
-                if (author == null)
-                {
-                    return NotFound($"Author with ID: {id} not found.");
-                }
-                return Ok(author);
-            }
-            catch (Exception ex)
-            {
-                return Problem($"An error occured while fetching Author with ID: {id}");
-            }
+                return Ok(await _authorService.GetByIdAsync(id));
         }
 
         // POST api/authors
         [HttpPost]
         public async Task<IActionResult> PostAsync(Author author)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                Author createdAuthor = await _authorService.CreateAsync(author);
-                return Ok(createdAuthor);
+                return BadRequest(ModelState);
             }
-            catch (Exception ex)
-            {
-                return Problem("An error occuired while creating Author.");
-            }
+
+            return Ok(await _authorService.CreateAsync(author));
         }
 
         // PUT api/authors/5
         [HttpPut("{id}")]
         public async Task<IActionResult> PutAsync(int id, Author author)
         {
-            try
+            if (!ModelState.IsValid)
             {
-                Author updatedAuthor = await _authorService.UpdateAsync(id, author);
-                if (updatedAuthor == null)
-                {
-                    return NotFound($"Author with ID: {id} not found.");
-                }
+                return BadRequest(ModelState);
+            }
 
-                return Ok(updatedAuthor);
-            }
-            catch (Exception ex)
-            {
-                return Problem($"An error occured while updating Author with ID: {id}");
-            }
+            return Ok(await _authorService.UpdateAsync(id, author));
         }
 
         // DELETE api/authors/5
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeletAsynce(int id)
+        public async Task<IActionResult> DeletAsync(int id)
         {
-            try
-            {
-                bool result = await _authorService.DeleteAsync(id);
-
-                if (!result)
-                {
-                    return NotFound($"Author with ID: {id} not found");
-                }
-                return NoContent();
-            }
-            catch (Exception ex)
-            {
-                return Problem($"An error occured while deleting Author with ID: {id}");
-            }
+            await _authorService.DeleteAsync(id);
+            return NoContent();
         }
     }
 }

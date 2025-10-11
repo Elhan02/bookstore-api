@@ -1,4 +1,5 @@
-﻿using BookstoreApplication.Models;
+﻿using BookstoreApplication.Exceptions;
+using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,7 +21,14 @@ namespace BookstoreApplication.Services
 
         public async Task<Publisher?> GetByIdAsync(int id)
         {
-            return await _publisherRepository.GetByIdAsync(id);
+            Publisher publisher = await _publisherRepository.GetByIdAsync(id);
+
+            if (publisher == null)
+            {
+                throw new NotFoundException("Publisher", id);
+            }
+
+            return publisher;
         }
 
         public async Task<Publisher> CreateAsync(Publisher publisher)
@@ -30,9 +38,17 @@ namespace BookstoreApplication.Services
 
         public async Task<Publisher> UpdateAsync(int id, Publisher publisher)
         {
+            if (id != publisher.Id)
+            {
+                throw new BadRequestException("Identifier value is invalid.");
+            }
+
             Publisher existingPublisher = await _publisherRepository.GetByIdAsync(id);
 
-            if (existingPublisher == null) return null;
+            if (existingPublisher == null)
+            {
+                throw new NotFoundException("Publisher", id);
+            }
 
             existingPublisher.Name = publisher.Name;
             existingPublisher.Address = publisher.Address;
@@ -42,17 +58,16 @@ namespace BookstoreApplication.Services
             return await _publisherRepository.UpdateAsync(existingPublisher);
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             Publisher publisher = await _publisherRepository.GetByIdAsync(id);
 
             if (publisher == null)
             {
-                return false;
+                throw new NotFoundException("Publisher", id);
             }
 
             await _publisherRepository.DeleteAsync(publisher);
-            return true;
         }
     }
 }
