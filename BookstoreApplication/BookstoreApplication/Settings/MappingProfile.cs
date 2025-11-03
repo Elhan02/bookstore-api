@@ -13,7 +13,9 @@ namespace BookstoreApplication.Settings
 
             CreateMap<Book, BookDetailsDto>();
 
-            CreateMap<RegistrationDto, ApplicationUser>();  
+            CreateMap<RegistrationDto, ApplicationUser>();
+
+            CreateMap<ApplicationUser, ProfileDto>();
         }
 
 
