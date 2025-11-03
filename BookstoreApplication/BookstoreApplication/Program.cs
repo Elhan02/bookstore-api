@@ -2,6 +2,7 @@ using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
 using BookstoreApplication.Services;
 using BookstoreApplication.Settings;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -14,6 +15,7 @@ builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddScoped<IPublisherService, PublisherService>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAwardService, AwardService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAuthorRepository, AuthorsRepository>();
 builder.Services.AddScoped<IPublisherRepository, PublishersRepository>();
 builder.Services.AddScoped<IBookRepository, BooksRepository>();
@@ -32,6 +34,25 @@ var logger = new LoggerConfiguration()
 builder.Logging.ClearProviders();
 builder.Logging.AddSerilog(logger);
 
+//Identity Registration
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<AppDbContext>()
+    .AddDefaultTokenProviders();
+
+//Password requirements
+builder.Services.Configure<IdentityOptions>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+});
+
+//Authentication
+builder.Services.AddAuthentication();
+
+//CORS Policy
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(
@@ -53,6 +74,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
