@@ -17,6 +17,7 @@ namespace BookstoreApplication.Controllers
             _authService = authService;
         }
 
+        [AllowAnonymous]
         [HttpPost("register")]
         public async Task<IActionResult> Register(RegistrationDto data)
         {
@@ -28,6 +29,7 @@ namespace BookstoreApplication.Controllers
             return NoContent();
         }
 
+        [AllowAnonymous]
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginDto data)
         {

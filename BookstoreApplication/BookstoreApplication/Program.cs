@@ -1,3 +1,4 @@
+using BookstoreApplication;
 using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
 using BookstoreApplication.Services;
@@ -62,6 +63,13 @@ builder.Services.AddSwaggerGen(c =>
   });
 });
 
+//Policy config
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ManageBooks",
+      policy => policy.RequireRole("Editor"));
+});
+
 
 //Serilog for logging
 var logger = new LoggerConfiguration()
@@ -122,6 +130,13 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
+
+//Create seed data from SeedData.cs
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await SeedData.InitializeAsync(services);
+}
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
