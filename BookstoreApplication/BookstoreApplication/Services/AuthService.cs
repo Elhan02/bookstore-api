@@ -2,6 +2,7 @@
 using BookstoreApplication.DTOs;
 using BookstoreApplication.Exceptions;
 using BookstoreApplication.Models;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -49,6 +50,32 @@ namespace BookstoreApplication.Services
                 throw new BadRequestException("Invalid credentials.");
             }
 
+            var token = await GenerateJwtAsync(user);
+            return token;
+        }
+
+        public async Task<string> GoogleLoginAsync(string? email, string? name, string? surname, string? pictureUrl)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email = email,
+                    EmailConfirmed = true,
+                    Name = name,
+                    Surname = surname,
+                    PictureUrl = pictureUrl
+                };
+
+                var result = await _userManager.CreateAsync(user);
+                if (!result.Succeeded)
+                {
+                    throw new BadHttpRequestException("Google login failed: Error occured while creating user.");
+                }
+            }
+            
             var token = await GenerateJwtAsync(user);
             return token;
         }
