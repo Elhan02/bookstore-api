@@ -13,6 +13,9 @@ namespace BookstoreApplication.DTOs
         public string ISBN { get; set; }
 
         [Required]
+        public int PageCount { get; set; }
+
+        [Required]
         public string AuthorFullName { get; set; }
 
         [Required]
