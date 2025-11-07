@@ -23,12 +23,20 @@ builder.Services.AddScoped<IPublisherService, PublisherService>();
 builder.Services.AddScoped<IBookService, BookService>();
 builder.Services.AddScoped<IAwardService, AwardService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IVolumeService, VolumeService>();
+builder.Services.AddScoped<IIssueService, IssueService>();
 builder.Services.AddScoped<IAuthorRepository, AuthorsRepository>();
 builder.Services.AddScoped<IPublisherRepository, PublishersRepository>();
 builder.Services.AddScoped<IBookRepository, BooksRepository>();
 builder.Services.AddScoped<IAwardRepository, AwardsRepository>();
+builder.Services.AddScoped<IIssueRepository, IssuesRepository>();
+builder.Services.AddScoped<IComicVineConnection, ComicVineConnection>();
+
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers();
+
+//HttpClient
+builder.Services.AddHttpClient<ComicVineConnection>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //config swagger JWT builder.Services.AddSwaggerGen();

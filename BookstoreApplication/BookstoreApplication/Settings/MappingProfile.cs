@@ -16,6 +16,13 @@ namespace BookstoreApplication.Settings
             CreateMap<RegistrationDto, ApplicationUser>();
 
             CreateMap<ApplicationUser, ProfileDto>();
+
+            CreateMap<CreateIssueDto, Issue>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore());
+            CreateMap<ApiCreateIssueDto, Issue>()
+                .ForMember(dest => dest.Id, opt => opt.Ignore())
+                .ForMember(dest => dest.ApiId, opt => opt.MapFrom(src => src.Id))
+                .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image.SmallUrl));
         }
 
 
