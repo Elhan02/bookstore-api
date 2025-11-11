@@ -23,6 +23,8 @@ namespace BookstoreApplication.Settings
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.ApiId, opt => opt.MapFrom(src => src.Id))
                 .ForMember(dest => dest.ImageUrl, opt => opt.MapFrom(src => src.Image.SmallUrl));
+
+            CreateMap<BookReview, BookReviewDto>();
         }
 
 

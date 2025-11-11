@@ -26,5 +26,6 @@ namespace BookstoreApplication.Models
         [Range(0, int.MaxValue)]
         public int PublisherId { get; set; }
         public Publisher? Publisher { get; set; }
+        public double AverageRating { get; set; }
     }
 }

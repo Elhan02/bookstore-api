@@ -8,6 +8,7 @@ namespace BookstoreApplication.DTOs
 
         [Required]
         public string Title { get; set; }
+        public double? AverageRating { get; set; }
 
         [Required]
         public string ISBN { get; set; }

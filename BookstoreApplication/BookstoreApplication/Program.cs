@@ -25,12 +25,15 @@ builder.Services.AddScoped<IAwardService, AwardService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IVolumeService, VolumeService>();
 builder.Services.AddScoped<IIssueService, IssueService>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<IBookReviewService, BookReviewService>();
 builder.Services.AddScoped<IAuthorRepository, AuthorsRepository>();
 builder.Services.AddScoped<IPublisherRepository, PublishersRepository>();
 builder.Services.AddScoped<IBookRepository, BooksRepository>();
 builder.Services.AddScoped<IAwardRepository, AwardsRepository>();
 builder.Services.AddScoped<IIssueRepository, IssuesRepository>();
 builder.Services.AddScoped<IComicVineConnection, ComicVineConnection>();
+builder.Services.AddScoped<IBookReviewRepository, BookReviewsRepository>();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddControllers();
