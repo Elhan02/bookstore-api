@@ -27,13 +27,13 @@ namespace BookstoreApplication.Services
 
             if (!response.IsSuccessStatusCode)
             {
-                //TODO: HandleUnSuccessfulRequest
+                HandleUnSuccessfulRequest(response, jsonDocument);
             }
 
             int statusCode = jsonDocument.RootElement.GetProperty("status_code").GetInt32();
             if (statusCode != 1)
             {
-                //TODO: HandleUnSuccessfulRequest
+                HandleUnSuccessfulRequest(response, jsonDocument);
             }
 
             return jsonDocument.RootElement.GetProperty("results").GetRawText();
