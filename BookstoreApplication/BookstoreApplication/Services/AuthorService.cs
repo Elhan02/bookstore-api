@@ -2,6 +2,7 @@
 using BookstoreApplication.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using BookstoreApplication.Exceptions;
+using BookstoreApplication.Utils;
 
 namespace BookstoreApplication.Services
 {
@@ -27,6 +28,11 @@ namespace BookstoreApplication.Services
                 throw new NotFoundException("Author", id);
             }
             return author;
+        }
+
+        public async Task<PaginatedList<Author>> GetAllPagedAsync(int page)
+        {
+            return await _authorsRepository.GetAllPagedAsync(page);
         }
 
         public async Task<Author> CreateAsync(Author author)

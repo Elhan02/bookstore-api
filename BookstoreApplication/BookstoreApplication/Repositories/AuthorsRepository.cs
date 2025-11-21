@@ -1,4 +1,5 @@
 ﻿using BookstoreApplication.Models;
+using BookstoreApplication.Utils;
 using Microsoft.EntityFrameworkCore;
 
 namespace BookstoreApplication.Repositories
@@ -6,6 +7,7 @@ namespace BookstoreApplication.Repositories
     public class AuthorsRepository : IAuthorRepository
     {
         private AppDbContext _context;
+        private const int pageSize = 5;
 
         public AuthorsRepository(AppDbContext context)
         {
@@ -20,6 +22,18 @@ namespace BookstoreApplication.Repositories
         public async Task<Author?> GetByIdAsync(int id)
         {
             return await _context.Authors.FindAsync(id);
+        }
+
+        public async Task<PaginatedList<Author>> GetAllPagedAsync(int page)
+        {
+            IQueryable<Author> authors = _context.Authors
+                .OrderBy(a => a.FullName);
+
+            int pageIndex = page - 1;
+            var count = await authors.CountAsync();
+            var items = await authors.Skip(pageIndex * pageSize).Take(pageSize).ToListAsync();
+            PaginatedList<Author> result = new PaginatedList<Author>(items, count, pageIndex, pageSize);
+            return result;
         }
 
         public async Task<Author> CreateAsync(Author author)
