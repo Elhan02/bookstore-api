@@ -7,5 +7,6 @@
         Task<Publisher> CreateAsync(Publisher publisher);
         Task<Publisher> UpdateAsync(Publisher publisher);
         Task<bool> DeleteAsync(Publisher publisher);
+        Task<IEnumerable<Publisher>> GetSortedPublishers(int sortType);
     }
 }

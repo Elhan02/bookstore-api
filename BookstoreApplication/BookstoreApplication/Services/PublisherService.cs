@@ -1,4 +1,5 @@
-﻿using BookstoreApplication.Exceptions;
+﻿using BookstoreApplication.DTOs;
+using BookstoreApplication.Exceptions;
 using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -8,10 +9,12 @@ namespace BookstoreApplication.Services
     public class PublisherService : IPublisherService
     {
         private readonly IPublisherRepository _publisherRepository;
+        private readonly ILogger<PublisherService> _logger;
 
-        public PublisherService(IPublisherRepository publisherRepository)
+        public PublisherService(IPublisherRepository publisherRepository, ILogger<PublisherService> logger)
         {
             _publisherRepository = publisherRepository;
+            _logger = logger;
         }
 
         public async Task<List<Publisher>> GetAllAsync()
@@ -68,6 +71,24 @@ namespace BookstoreApplication.Services
             }
 
             await _publisherRepository.DeleteAsync(publisher);
+        }
+
+        public List<PublisherSortTypeOptionDto> GetAllSortTypes()
+        {
+            _logger.LogInformation($"Geting all publishers sort option types.");
+            List<PublisherSortTypeOptionDto> publisherSortTypeOptionDtos = new List<PublisherSortTypeOptionDto>();
+            var enumValues = Enum.GetValues(typeof(PublisherSortType));
+            foreach (PublisherSortType enumValue in enumValues)
+            {
+                publisherSortTypeOptionDtos.Add(new PublisherSortTypeOptionDto(enumValue));
+            }
+            return publisherSortTypeOptionDtos;
+        }
+
+        public async Task<IEnumerable<Publisher>> GetSortedPublishers(int sortType)
+        {
+            _logger.LogInformation($"Geting all sorted publishers.");
+            return await _publisherRepository.GetSortedPublishers(sortType);
         }
     }
 }

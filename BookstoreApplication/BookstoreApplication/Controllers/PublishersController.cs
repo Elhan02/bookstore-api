@@ -1,4 +1,5 @@
-﻿using BookstoreApplication.Models;
+﻿using BookstoreApplication.DTOs;
+using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
 using BookstoreApplication.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -62,6 +63,18 @@ namespace BookstoreApplication.Controllers
         {
             await _publisherService.DeleteAsync(id);
             return NoContent();
+        }
+
+        [HttpGet("sortTypes")]
+        public ActionResult<List<PublisherSortTypeOptionDto>> GetAllSortTypes()
+        {
+            return _publisherService.GetAllSortTypes();
+        }
+
+        [HttpGet("sort")]
+        public async Task<IEnumerable<Publisher>> GetSortedPublishers([FromQuery] int sortType = (int)PublisherSortType.NAME_ASCENDING)
+        {
+            return await _publisherService.GetSortedPublishers(sortType);
         }
     }
 }
