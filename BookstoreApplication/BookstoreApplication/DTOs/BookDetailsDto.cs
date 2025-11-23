@@ -24,6 +24,9 @@ namespace BookstoreApplication.DTOs
         [Required]
         public string AuthorFullName { get; set; }
 
+        [Required]
+        public DateTime AuthorDateOfBirth { get; set; }
+
         [Range(0, int.MaxValue)]
         public int PublisherId { get; set; }
 

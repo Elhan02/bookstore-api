@@ -12,5 +12,6 @@ namespace BookstoreApplication.Services
         Task DeleteAsync(int id);
         List<BookSortTypeDto> GetAllSortTypes();
         Task<IEnumerable<BookDetailsDto>> GetSortedBooksAsync(int sortType);
+        Task<IEnumerable<BookDetailsDto>> GetFilteredAnsSortedBooksAsync(BookFilterDto filterDto, int sortType);
     }
 }

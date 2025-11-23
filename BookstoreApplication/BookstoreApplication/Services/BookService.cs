@@ -76,18 +76,22 @@ namespace BookstoreApplication.Services
                 .ToListAsync();
         }
 
-        public static IQueryable<Book> SortBooks(IQueryable<Book> books, int sortType)
+
+        public async Task<IEnumerable<BookDetailsDto>> GetFilteredAnsSortedBooksAsync(BookFilterDto filterDto, int sortType)
         {
-            return sortType switch
+            if (filterDto == null)
             {
-                (int)BookSortType.BOOK_TITLE_ASC => books.OrderBy(book => book.Title),
-                (int)BookSortType.BOOK_TITLE_DESC => books.OrderByDescending(book => book.Title),
-                (int)BookSortType.PUBLISHED_DATE_ASC => books.OrderBy(book => book.PublishedDate),
-                (int)BookSortType.PUBLISHED_DATE_DESC => books.OrderByDescending(book => book.PublishedDate),
-                (int)BookSortType.AUTHORS_FULLNAME_ASC => books.OrderBy(book => book.Author.FullName),
-                (int)BookSortType.AUTHORS_FULLNAME_DESC => books.OrderByDescending(book => book.Author.FullName),
-                _ => books.OrderBy(book => book.Title)
-            };
+                throw new BadRequestException("Invalid filter data.");
+            }
+
+            IQueryable<Book> books = _booksRepository.GetBaseBooks();
+
+            books = FilterBooks(books, filterDto);
+            books = SortBooks(books, sortType);
+
+            return await books
+                .ProjectTo<BookDetailsDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
         }
 
         public async Task<Book> CreateAsync(Book book)
@@ -183,6 +187,61 @@ namespace BookstoreApplication.Services
             }
 
             await _booksRepository.DeleteAsync(book);
+        }
+
+        public static IQueryable<Book> SortBooks(IQueryable<Book> books, int sortType)
+        {
+            return sortType switch
+            {
+                (int)BookSortType.BOOK_TITLE_ASC => books.OrderBy(book => book.Title),
+                (int)BookSortType.BOOK_TITLE_DESC => books.OrderByDescending(book => book.Title),
+                (int)BookSortType.PUBLISHED_DATE_ASC => books.OrderBy(book => book.PublishedDate),
+                (int)BookSortType.PUBLISHED_DATE_DESC => books.OrderByDescending(book => book.PublishedDate),
+                (int)BookSortType.AUTHORS_FULLNAME_ASC => books.OrderBy(book => book.Author.FullName),
+                (int)BookSortType.AUTHORS_FULLNAME_DESC => books.OrderByDescending(book => book.Author.FullName),
+                _ => books.OrderBy(book => book.Title)
+            };
+        }
+
+
+        public static IQueryable<Book> FilterBooks(IQueryable<Book> books, BookFilterDto filterDto)
+        {
+            if (!string.IsNullOrEmpty(filterDto.Title))
+            {
+                books = books.Where(book => (book.Title.Trim().ToLower()).Contains(filterDto.Title.Trim().ToLower()));
+            }
+
+            if (filterDto.PublishedDateFrom != null)
+            {
+                books = books.Where(book => book.PublishedDate >= filterDto.PublishedDateFrom);
+            }
+
+            if (filterDto.PublishedDateTo != null)
+            {
+                books = books.Where(book => book.PublishedDate <= filterDto.PublishedDateTo);
+            }
+
+            if (!string.IsNullOrEmpty(filterDto.AuthorFullName))
+            {
+                books = books.Where(book => book.Author.FullName.Trim().ToLower() == filterDto.AuthorFullName.Trim().ToLower());
+            }
+
+            if (!string.IsNullOrEmpty(filterDto.AuthorFirstName))
+            {
+                books = books.Where(book => book.Author.FullName.Trim().ToLower().Contains(filterDto.AuthorFirstName.Trim().ToLower()));
+            }
+
+            if (filterDto.AuthorDateOfBirthFrom != null)
+            {
+                books = books.Where(book => book.Author.DateOfBirth >= filterDto.AuthorDateOfBirthFrom);
+            }
+
+            if (filterDto.AuthorDateOfBirthTo != null)
+            {
+                books = books.Where(book => book.Author.DateOfBirth <= filterDto.AuthorDateOfBirthTo);
+            }
+
+            return books;
         }
     }
 }

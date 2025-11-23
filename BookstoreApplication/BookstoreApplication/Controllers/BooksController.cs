@@ -54,6 +54,13 @@ namespace BookstoreApplication.Controllers
             return Ok(await _bookService.GetSortedBooksAsync(sortType));
         }
 
+        // POST /api/books/filterAndSort?sortType=1
+        [HttpPost("filterAndSort")]
+        public async Task<IActionResult> GetFilteredAndSortedBooksAsync([FromBody] BookFilterDto filterDto, [FromQuery] int sortType = (int)BookSortType.BOOK_TITLE_ASC)
+        {
+            return Ok(await _bookService.GetFilteredAnsSortedBooksAsync(filterDto, sortType));
+        }
+
         // POST api/books
         [Authorize]
         [HttpPost]
