@@ -29,6 +29,14 @@ namespace BookstoreApplication.Repositories
                 .FirstOrDefaultAsync(b => b.Id == id);
         }
 
+
+        public IQueryable<Book> GetBaseBooks()
+        {
+            return _context.Books
+                 .Include(book => book.Author)
+                 .Include(book => book.Publisher);
+        }
+
         public async Task<Book> CreateAsync(Book book)
         {
             _context.Books.Add(book);

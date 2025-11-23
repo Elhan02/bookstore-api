@@ -7,5 +7,6 @@
         Task<Book> CreateAsync(Book book);
         Task<Book> UpdateAsync(Book book);
         Task<bool> DeleteAsync(Book book);
+        IQueryable<Book> GetBaseBooks();
     }
 }

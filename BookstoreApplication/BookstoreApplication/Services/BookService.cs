@@ -1,8 +1,11 @@
 ﻿using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using BookstoreApplication.DTOs;
 using BookstoreApplication.Exceptions;
 using BookstoreApplication.Models;
 using BookstoreApplication.Repositories;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace BookstoreApplication.Services
 {
@@ -45,6 +48,46 @@ namespace BookstoreApplication.Services
             _logger.LogInformation($"Book with ID {id} was successfully retrieved.");
 
             return _mapper.Map<BookDetailsDto>(book);
+        }
+
+        public List<BookSortTypeDto> GetAllSortTypes()
+        {
+            List<BookSortTypeDto> bookSortTypeDtos = new List<BookSortTypeDto>();
+            var bookEnumTypes = Enum.GetValues(typeof(BookSortType));
+
+            foreach (BookSortType bookSortType in bookEnumTypes)
+            {
+                bookSortTypeDtos.Add(new BookSortTypeDto(bookSortType));
+            }
+            return bookSortTypeDtos;
+        }
+
+        public async Task<IEnumerable<BookDetailsDto>> GetSortedBooksAsync(int sortType)
+        {
+            if (sortType < 0)
+            {
+                throw new BadRequestException("Sort type must be greather than 0.");
+            }
+
+            _logger.LogInformation($"Getting all sorted books.");
+            IQueryable<Book> books = _booksRepository.GetBaseBooks();
+            return await SortBooks(books, sortType)
+                .ProjectTo<BookDetailsDto>(_mapper.ConfigurationProvider)
+                .ToListAsync();
+        }
+
+        public static IQueryable<Book> SortBooks(IQueryable<Book> books, int sortType)
+        {
+            return sortType switch
+            {
+                (int)BookSortType.BOOK_TITLE_ASC => books.OrderBy(book => book.Title),
+                (int)BookSortType.BOOK_TITLE_DESC => books.OrderByDescending(book => book.Title),
+                (int)BookSortType.PUBLISHED_DATE_ASC => books.OrderBy(book => book.PublishedDate),
+                (int)BookSortType.PUBLISHED_DATE_DESC => books.OrderByDescending(book => book.PublishedDate),
+                (int)BookSortType.AUTHORS_FULLNAME_ASC => books.OrderBy(book => book.Author.FullName),
+                (int)BookSortType.AUTHORS_FULLNAME_DESC => books.OrderByDescending(book => book.Author.FullName),
+                _ => books.OrderBy(book => book.Title)
+            };
         }
 
         public async Task<Book> CreateAsync(Book book)

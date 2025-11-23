@@ -29,6 +29,7 @@ namespace BookstoreApplication.DTOs
 
         [Required]
         public string PublisherName { get; set; }
+        public double AverageRating { get; set; }
 
 
     }
