@@ -42,9 +42,13 @@ namespace BookstoreApplication.Models
                 .OnDelete(DeleteBehavior.Cascade);
             });
 
-            modelBuilder.Entity<Author>()
-                .Property(a => a.DateOfBirth)
-                .HasColumnName("Birthday");
+            var authorEntity = modelBuilder.Entity<Author>();
+                
+            authorEntity.Property(a => a.DateOfBirth)
+                        .HasColumnName("Birthday");
+
+            authorEntity.HasIndex(a => a.FullName)
+                        .HasDatabaseName("IX_Authors_FullName_LowerTrim");
 
             modelBuilder.Entity<Book>()
                 .HasOne(b => b.Publisher)

@@ -223,7 +223,8 @@ namespace BookstoreApplication.Services
 
             if (!string.IsNullOrEmpty(filterDto.AuthorFullName))
             {
-                books = books.Where(book => book.Author.FullName.Trim().ToLower() == filterDto.AuthorFullName.Trim().ToLower());
+                string authorName = filterDto.AuthorFullName.Trim().ToLower();
+                books = books.Where(book => book.Author.FullName.Trim().ToLower() == authorName);
             }
 
             if (!string.IsNullOrEmpty(filterDto.AuthorFirstName))
