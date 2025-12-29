@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 using Serilog;
 using System.Security.Claims;
 using System.Text;
@@ -31,11 +32,17 @@ builder.Services.AddScoped<IAuthorRepository, AuthorsRepository>();
 builder.Services.AddScoped<IPublisherRepository, PublishersRepository>();
 builder.Services.AddScoped<IBookRepository, BooksRepository>();
 builder.Services.AddScoped<IAwardRepository, AwardsRepository>();
-builder.Services.AddScoped<IIssueRepository, IssuesRepository>();
 builder.Services.AddScoped<IComicVineConnection, ComicVineConnection>();
 builder.Services.AddScoped<IBookReviewRepository, BookReviewsRepository>();
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+//MongoDB
+var mongoClient = new MongoClient(builder.Configuration["MongoDB:ConnectionString"]);
+var mongoDatabase = mongoClient.GetDatabase(builder.Configuration["MongoDB:DatabaseName"]);
+var issuesCollection = mongoDatabase.GetCollection<Issue>(builder.Configuration["MongoDB:CollectionName"]);
+builder.Services.AddSingleton<IIssueRepository>(new IssuesNoSqlRepository(issuesCollection));
+
+
 builder.Services.AddControllers();
 
 //HttpClient
