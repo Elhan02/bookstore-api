@@ -122,3 +122,105 @@ mapiranje ako je neki atribut null za PUT
                 }));
             CreateMap<Animal, AnimalDetailsDto>();
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+front select 
+
+
+import { useState, useEffect } from "react";
+import React from "react";
+import { getAll, itemDelete, itemUpdate } from "../../services/animalsService";
+import { getAllCages } from "../../services/cagesService";
+import "../../styles/tableStyle.scss";
+import CreateAnimalFormComponent from "../forms/CreateAnimalFormComponent";
+
+const AnimalsComponent = () => {
+    const [items, setItems] = useState([]);
+    const [cages, setCages] = useState([]);
+
+    const renderItems = async () => {
+        try {
+            const data = await getAll();
+            const cages = await getAllCages();
+            setItems(data);
+            setCages(cages);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const deleteAnimal = async (id) => {
+        try {
+            await itemDelete(id);
+            renderItems();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const onUpdateCage = async (animalId, selectedCageId) => {
+        try {
+            await itemUpdate(animalId, {id: animalId, cageId: selectedCageId})
+            renderItems();
+        } catch(error) {
+            console.error(error);
+        }
+    }
+
+    useEffect(() => {
+        renderItems();
+    }, []);
+
+    return (
+        <>
+            <a href="/add-animal">Add Animal</a>
+            <div className="listPageContainer">
+                <div className="tableScrollWrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Species</th>
+                                <th>Mass in kg</th>
+                                <th>Cage</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {items.map((item) => (
+                                <tr key={item.id} style={{backgroundColor: item.cageId <= 0 && "#FF5C5C"}}>
+                                    <td>{item.name}</td>
+                                    <td>{item.speciesName}</td>
+                                    <td>{item.mass}</td>
+                                    <td><select value={item.cageId || ""} onChange={(e) => onUpdateCage(item.id, e.target.value)}>
+                                        <option value="">-- Select Cage --</option> {/* default prazna opcija */}
+                                        {cages.map((cage) => (
+                                            <option key={cage.id} value={cage.id}>
+                                                {cage.code}
+                                            </option>
+                                        ))}
+                                    </select></td>
+                                    <td><button onClick={() => deleteAnimal(item.id)}>Delete</button></td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </>
+    );
+};
+
+export default AnimalsComponent;
